@@ -23,8 +23,10 @@ jobs:
         # generator: Ninja
         build-dir: build
           # CMAKE_BUILD_TYPE=Release
-        options: |
-          CMAKE_CONFIGURATION_TYPES=Release
+        build-args: |
+          --config Release
+        # options: |
+        #   CMAKE_CONFIGURATION_TYPES=Release
 
     - run: python package-plugin.py
 
