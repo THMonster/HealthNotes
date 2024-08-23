@@ -17,7 +17,7 @@ jobs:
       with:
         build-dir: build
         args: |
-          "--config release"
+          --config release
     - run: python package-plugin.py
 
     - uses: ncipollo/release-action@v1
