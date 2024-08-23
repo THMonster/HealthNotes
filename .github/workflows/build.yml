@@ -17,19 +17,14 @@ jobs:
     # - name: Setup Ninja
     #   uses: seanmiddleditch/gha-setup-ninja@v5
      
-    # - name: cmake
-    #   uses: threeal/cmake-action@v2.0.0
-    #   with:
-    #     # generator: Ninja
-    #     build-dir: build
-    #     options: |
-    #       CMAKE_BUILD_TYPE=Release
-
     - name: cmake
-      uses: lukka/run-cmake@v10
+      uses: threeal/cmake-action@v2.0.0
       with:
         # generator: Ninja
-        buildPresetAdditionalArgs: "['--config Release']"
+        build-dir: build
+          # CMAKE_BUILD_TYPE=Release
+        options: |
+          CMAKE_CONFIGURATION_TYPES=Release
 
     - run: python package-plugin.py
 
