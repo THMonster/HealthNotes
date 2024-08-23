@@ -1,0 +1,38 @@
+name: BUILD
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build-project:
+    name: Build Project
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+
+    # - name: Setup Ninja
+    #   uses: seanmiddleditch/gha-setup-ninja@v5
+     
+    - name: cmake
+      uses: threeal/cmake-action@v2.0.0
+      with:
+        # generator: Ninja
+        build-dir: build
+          # CMAKE_BUILD_TYPE=Release
+        build-args: |
+          --config Release
+        # options: |
+        #   CMAKE_CONFIGURATION_TYPES=Release
+
+    - run: python package-plugin.py
+
+    - uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        tag: "release"
+        artifacts: "./build/HealthNotes.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
