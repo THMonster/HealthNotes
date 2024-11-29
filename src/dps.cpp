@@ -51,6 +51,9 @@ DPSMeter::DPSMeter() {
   members.push_back(m);
 }
 
+DPSMeter::~DPSMeter() {
+}
+
 void DPSMeter::reset() {
   std::unique_lock l(mtx);
   for (int i = 0; i < 4; i++) {
