@@ -16,7 +16,7 @@ add_library(loader STATIC IMPORTED)
 target_include_directories(loader INTERFACE deps/loader)
 set_property(TARGET loader PROPERTY IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/deps/loader/loader.lib)
 
-add_library(HealthNotes SHARED src/dllmain.cpp)
+add_library(HealthNotes SHARED src/dllmain.cpp src/dps.cpp)
 target_link_libraries(HealthNotes PRIVATE minhook loader)
 target_include_directories(HealthNotes PRIVATE deps/json deps/loader deps/minhook)
 target_compile_features(HealthNotes PRIVATE cxx_std_20)
