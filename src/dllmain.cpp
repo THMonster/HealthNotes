@@ -122,12 +122,11 @@ __declspec(dllexport) extern bool Load() {
         dps_meter.check_members();
       }
     }
-    }
-}).detach();
+  }).detach();
 
-MH_ApplyQueued();
+  MH_ApplyQueued();
 
-return true;
+  return true;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
