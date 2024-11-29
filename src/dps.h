@@ -12,6 +12,7 @@ struct PartyMember {
   std::string name;
   int16_t master_rank;
   int32_t damage;
+  int32_t start_damage;
   int64_t start_time;
 };
 

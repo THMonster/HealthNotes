@@ -47,8 +47,7 @@ template <typename T> T read_memory(std::uintptr_t base_address, const std::vect
 }
 
 DPSMeter::DPSMeter() {
-  PartyMember m = {0, "", 0, 0, 0};
-  // members = std::vector<PartyMember>();
+  PartyMember m = {0, "", 0, 0, 0, 0};
   members.push_back(m);
   members.push_back(m);
   members.push_back(m);
@@ -82,6 +81,9 @@ void DPSMeter::check_members() {
   }
   for (int i = 0; i < party_len; i++) {
     if (members[i].state == 0) {
+      auto damage_offsets = DAMAGE_OFFSETS;
+      damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
+      members[i].start_damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets);
       members[i].start_time = get_time_now();
       members[i].state = 1;
     }
@@ -110,11 +112,22 @@ std::string DPSMeter::get_dps_text() {
   update_damage();
   std::string ret;
   auto now = get_time_now();
+  auto total_damage = 0;
+  for (auto m : members) {
+    total_damage = total_damage + m.damage;
+  }
+  if (total_damage <= 0) {
+    total_damage = 1;
+  }
   for (auto m : members) {
     if (m.state == 1) {
-      auto dps = m.damage / (now - m.start_time);
-      ret.append(std::format("{}, {}dps, {}d\n", m.master_rank, dps, m.damage));
+      auto dps = (m.damage - m.start_damage) / (now - m.start_time);
+      float percent = (float)m.damage / total_damage;
+      ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
     }
+  }
+  if (!ret.empty() && ret.back() == '\n') {
+    ret.pop_back();
   }
   return ret;
 }
