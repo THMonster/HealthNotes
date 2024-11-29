@@ -122,7 +122,7 @@ std::string DPSMeter::get_dps_text() {
   for (auto m : members) {
     if (m.state == 1) {
       auto dps = (m.damage - m.start_damage) / (now - m.start_time);
-      float percent = (float)m.damage / total_damage;
+      float percent = (float)m.damage * 100 / total_damage ;
       ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
     }
   }
