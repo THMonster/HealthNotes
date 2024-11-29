@@ -1,7 +1,25 @@
 {
-    "messages": [
-        {"msg": "The monster is showing\n<STYL MOJI_YELLOW_DEFAULT>signs of moderate injuries</STYL>.", "ratio":0.50},
-        {"msg": "The monster is showing\n<STYL MOJI_ORANGE_DEFAULT>signs of severe injuries</STYL>.", "ratio":0.25},
-        {"msg": "<STYL MOJI_RED_DEFAULT>The monster is critically injured !</STYL>", "ratio":0.1}
-    ]
+  "messages": [
+    { "msg": "Health: 95", "ratio": 0.95 },
+    { "msg": "Health: 90", "ratio": 0.9 },
+    { "msg": "Health: 85", "ratio": 0.85 },
+    { "msg": "Health: 80", "ratio": 0.8 },
+    { "msg": "Health: 78", "ratio": 0.78 },
+    { "msg": "Health: 75", "ratio": 0.75 },
+    { "msg": "Health: 70", "ratio": 0.7 },
+    { "msg": "Health: 65", "ratio": 0.65 },
+    { "msg": "Health: 60", "ratio": 0.6 },
+    { "msg": "Health: 55", "ratio": 0.55 },
+    { "msg": "Health: 50", "ratio": 0.5 },
+    { "msg": "Health: 45", "ratio": 0.45 },
+    { "msg": "Health: 40", "ratio": 0.4 },
+    { "msg": "Health: 35", "ratio": 0.35 },
+    { "msg": "Health: 30", "ratio": 0.3 },
+    { "msg": "Health: 25", "ratio": 0.25 },
+    { "msg": "Health: 20", "ratio": 0.2 },
+    { "msg": "Health: 15", "ratio": 0.15 },
+    { "msg": "Health: 10", "ratio": 0.1 },
+    { "msg": "Health: 5", "ratio": 0.05 },
+    { "msg": "Health: 1", "ratio": 0.01 }
+  ]
 }
