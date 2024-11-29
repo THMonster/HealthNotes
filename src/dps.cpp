@@ -27,7 +27,7 @@ int64_t get_time_now() {
 
 // 函数：通过基址和多级偏移读取内存的值
 template <typename T> T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets) {
-  log(loader::INFO, "read memory: {} {}", base_address, offsets);
+  plugin::log(loader::INFO, "read memory: {} {}", base_address, offsets);
   // 当前地址
   auto current_address = base_address;
 
