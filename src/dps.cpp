@@ -30,7 +30,7 @@ int64_t get_time_now() {
 template <typename T> T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets) {
   // plugin::log(loader::INFO, "read memory: {} {}", base_address, offsets);
   // 当前地址
-  auto current_address = base_address;
+  auto current_address = *reinterpret_cast<std::uintptr_t *>(base_address);
 
   // 遍历偏移链
   for (size_t i = 0; i < offsets.size(); ++i) {
@@ -61,7 +61,7 @@ void DPSMeter::init_base() {
   // std::unique_lock l(mtx);
   HMODULE hModule = GetModuleHandle(NULL);
   base = reinterpret_cast<std::uintptr_t>(hModule);
-  loader::LOG(loader::INFO) << std::format("base addr: {}", base);
+  loader::LOG(loader::INFO) << std::format("base addr: 0x{:x}", base);
 }
 
 void DPSMeter::reset() {
