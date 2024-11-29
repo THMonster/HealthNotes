@@ -1,10 +1,12 @@
 #include <cstdint>
+#include <cstring>
 #include <format>
 #include <mutex>
 #include <string>
 #include <vector>
 
 #include "dps.h"
+#include "plugin-utils.h"
 
 const std::uintptr_t PARTY_SIZE_BASE = 0x051C46B8;
 const std::uintptr_t PARTY_MEMBER_BASE = 0x05013530;
@@ -25,6 +27,7 @@ int64_t get_time_now() {
 
 // 函数：通过基址和多级偏移读取内存的值
 template <typename T> T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets) {
+  log(loader::INFO, "read memory: {} {}", base_address, offsets);
   // 当前地址
   auto current_address = base_address;
 
@@ -51,8 +54,7 @@ DPSMeter::DPSMeter() {
   members.push_back(m);
 }
 
-DPSMeter::~DPSMeter() {
-}
+DPSMeter::~DPSMeter() {}
 
 void DPSMeter::reset() {
   std::unique_lock l(mtx);
