@@ -16,7 +16,7 @@ const std::uintptr_t DAMAGE_BASE = 0x051C46B8;
 const std::vector<std::uintptr_t> PARTY_SIZE_OFFSETS = {0x258, 0x10, 0x6574};
 const std::vector<std::uintptr_t> NAME_OFFSETS = {0x1ab0, 0x49};
 const std::vector<std::uintptr_t> HR_OFFSETS = {0x1ab0, 0x70};
-const std::vector<std::uintptr_t> MR_OFFSETS = {0x1ab0, 0x70};
+const std::vector<std::uintptr_t> MR_OFFSETS = {0x1ab0, 0x72};
 const std::vector<std::uintptr_t> DAMAGE_OFFSETS = {0x258, 0x38, 0x450, 0x8, 0x48};
 
 int64_t get_time_now() {
