@@ -1,5 +1,6 @@
 // dllmain.cpp : Définit le point d'entrée de l'application DLL.
 #include "MinHook.h"
+#include "dps.h"
 #include "json.hpp"
 #include "loader.h"
 #include "plugin-utils.h"
@@ -8,6 +9,8 @@
 #include <mutex>
 #include <queue>
 #include <windows.h>
+
+DPSMeter dps_meter;
 
 static std::queue<std::pair<float, std::string>> messages;
 static std::map<void *, std::queue<std::pair<float, std::string>>> monsterMessages;
@@ -50,6 +53,7 @@ void checkHealth(void *monster) {
   if (!lastMessage.empty()) {
     log(INFO, "Message: {}", lastMessage);
     showMessage(lastMessage);
+    showMessage(dps_meter.get_dps_text());
   }
 }
 
@@ -103,19 +107,27 @@ __declspec(dllexport) extern bool Load() {
 
   std::thread([]() {
     while (true) {
+      int i = 0;
       std::this_thread::sleep_for(std::chrono::seconds(2));
       {
         std::unique_lock l(lock);
         for (auto [monster, queue] : monsterMessages) {
           checkHealth(monster);
+          i++;
         }
       }
+      if (i <= 0) {
+        dps_meter.reset()
+      } else {
+        dps_meter.check_members();
+      }
     }
-  }).detach();
+    }
+}).detach();
 
-  MH_ApplyQueued();
+MH_ApplyQueued();
 
-  return true;
+return true;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
