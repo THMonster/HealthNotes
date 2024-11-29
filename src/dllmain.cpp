@@ -117,7 +117,7 @@ __declspec(dllexport) extern bool Load() {
         }
       }
       if (i <= 0) {
-        dps_meter.reset()
+        dps_meter.reset();
       } else {
         dps_meter.check_members();
       }
