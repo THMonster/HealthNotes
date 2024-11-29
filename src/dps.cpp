@@ -4,9 +4,10 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <windows.h>
 
 #include "dps.h"
-#include "plugin-utils.h"
+#include "loader.h"
 
 const std::uintptr_t PARTY_SIZE_BASE = 0x051C46B8;
 const std::uintptr_t PARTY_MEMBER_BASE = 0x05013530;
@@ -27,7 +28,7 @@ int64_t get_time_now() {
 
 // 函数：通过基址和多级偏移读取内存的值
 template <typename T> T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets) {
-  plugin::log(loader::INFO, "read memory: {} {}", base_address, offsets);
+  // plugin::log(loader::INFO, "read memory: {} {}", base_address, offsets);
   // 当前地址
   auto current_address = base_address;
 
@@ -56,6 +57,13 @@ DPSMeter::DPSMeter() {
 
 DPSMeter::~DPSMeter() {}
 
+void DPSMeter::init_base() {
+  // std::unique_lock l(mtx);
+  HMODULE hModule = GetModuleHandle(NULL);
+  base = reinterpret_cast<std::uintptr_t>(hModule);
+  loader::LOG(loader::INFO) << std::format("base addr: {}", base);
+}
+
 void DPSMeter::reset() {
   std::unique_lock l(mtx);
   for (int i = 0; i < 4; i++) {
@@ -68,7 +76,7 @@ void DPSMeter::reset() {
 
 void DPSMeter::check_members() {
   std::unique_lock l(mtx);
-  auto party_len = read_memory<int32_t>(PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS);
+  auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS);
   if (party_len > 4 && party_len <= 0) {
     return;
   }
@@ -82,7 +90,7 @@ void DPSMeter::check_members() {
 
 void DPSMeter::update_damage() {
   std::unique_lock l(mtx);
-  auto party_len = read_memory<int32_t>(PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS);
+  auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS);
   if (party_len > 4 && party_len <= 0) {
     return;
   }
@@ -92,8 +100,8 @@ void DPSMeter::update_damage() {
     mr_offsets[0] = mr_offsets[0] + (0x58 * i);
     damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
     if (members[i].state == 1) {
-      members[i].master_rank = read_memory<int16_t>(PARTY_MEMBER_BASE, mr_offsets);
-      members[i].damage = read_memory<int32_t>(DAMAGE_BASE, damage_offsets);
+      members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets);
+      members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets);
     }
   }
 }

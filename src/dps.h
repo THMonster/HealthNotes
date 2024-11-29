@@ -18,11 +18,13 @@ struct PartyMember {
 class DPSMeter {
   std::vector<PartyMember> members;
   std::mutex mtx;
+  std::uintptr_t base;
 
 public:
   DPSMeter();
   ~DPSMeter();
 
+  void init_base();
   void reset();
   void check_members();
   void update_damage();

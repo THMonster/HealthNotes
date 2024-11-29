@@ -105,6 +105,7 @@ __declspec(dllexport) extern bool Load() {
     return orig(this_);
   });
 
+  dps_meter.init_base();
   std::thread([]() {
     while (true) {
       int i = 0;
