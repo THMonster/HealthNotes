@@ -19,6 +19,7 @@
     { "msg": "Health: 20", "ratio": 0.2 },
     { "msg": "Health: 15", "ratio": 0.15 },
     { "msg": "Health: 10", "ratio": 0.1 },
+    { "msg": "Health: 8", "ratio": 0.08 },
     { "msg": "Health: 5", "ratio": 0.05 },
     { "msg": "Health: 1", "ratio": 0.01 }
   ]
