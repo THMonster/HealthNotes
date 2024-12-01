@@ -29,5 +29,5 @@ public:
   void reset();
   void check_members();
   void update_damage();
-  std::string get_dps_text();
+  std::vector<std::string> get_dps_text();
 };
