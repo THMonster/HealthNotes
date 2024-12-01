@@ -82,6 +82,9 @@ void DPSMeter::check_members() {
       members[i].state = 1;
     }
   }
+  for (int i = party_len; i < 4; i++) {
+      members[i].state = 0;
+  }
 }
 
 void DPSMeter::update_damage() {
@@ -102,9 +105,9 @@ void DPSMeter::update_damage() {
   }
 }
 
-std::vector<std::string> DPSMeter::get_dps_text() {
+std::string DPSMeter::get_dps_text() {
   update_damage();
-  std::vector<std::string> ret;
+  std::string ret;
   auto now = get_time_now();
   auto total_damage = 0;
   for (auto m : members) {
@@ -118,22 +121,20 @@ std::vector<std::string> DPSMeter::get_dps_text() {
   int i = 0;
   for (auto m : members) {
     if (m.state == 1) {
-      if (i % 2 == 0) {
-        ret.push_back("");
+      if (i == 3) {
+        ret.pop_back();
       }
       auto dps = (m.damage - m.start_damage) / (now - m.start_time);
       float percent = (float)m.damage * 100 / total_damage;
       // ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
-      ret.back().append(std::format("<STYL MOJI_BLUE_DEFAULT>MR{}</STYL><STYL MOJI_RED_DEFAULT>{}dps</STYL><STYL "
-                                    "MOJI_YELLOW_DEFAULT>{}d</STYL><STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>\n",
-                                    m.master_rank, dps, m.damage, percent));
+      ret.append(std::format("MR{}<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
+                             "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>\n",
+                             m.master_rank, dps, m.damage, percent));
       i++;
     }
   }
-  for (auto &s : ret) {
-    if (!s.empty() && s.back() == '\n') {
-      s.pop_back();
-    }
+  if (!ret.empty() && ret.back() == '\n') {
+    ret.pop_back();
   }
   return ret;
 }
