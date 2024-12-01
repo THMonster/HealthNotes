@@ -59,6 +59,7 @@ void DPSMeter::init_base() {
 
 void DPSMeter::reset() {
   std::unique_lock l(mtx);
+  current_max_members = 1;
   for (int i = 0; i < 4; i++) {
     members[i] = {0, "", 0, 0, 0, 0, 0};
   }
@@ -70,7 +71,10 @@ void DPSMeter::check_members() {
   if (party_len > 4 && party_len <= 0) {
     return;
   }
-  for (int i = 0; i < 4; i++) {
+  if (party_len > current_max_members) {
+    current_max_members = party_len;
+  }
+  for (int i = 0; i < current_max_members; i++) {
     if (members[i].state == 0) {
       auto damage_offsets = DAMAGE_OFFSETS;
       damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);

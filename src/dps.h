@@ -18,6 +18,7 @@ struct PartyMember {
 };
 
 class DPSMeter {
+  int32_t current_max_members = 1;
   std::vector<PartyMember> members;
   std::mutex mtx;
   std::uintptr_t base;
