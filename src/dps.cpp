@@ -119,7 +119,8 @@ std::string DPSMeter::get_dps_text() {
     if (m.state == 1) {
       auto dps = (m.damage - m.start_damage) / (now - m.start_time);
       float percent = (float)m.damage * 100 / total_damage;
-      ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
+      // ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
+      ret.append(std::format("<STYL MOJI_BLUE_DEFAULT>MR{}</STYL><STYL MOJI_RED_DEFAULT>{}dps</STYL><STYL MOJI_YELLOW_DEFAULT>{}d</STYL><STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>\n", m.master_rank, dps, m.damage, percent));
     }
   }
   if (!ret.empty() && ret.back() == '\n') {
