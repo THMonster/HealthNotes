@@ -41,7 +41,7 @@ template <typename T> T read_memory(std::uintptr_t base_address, const std::vect
 }
 
 DPSMeter::DPSMeter() {
-  PartyMember m = {0, "", 0, 0, 0, 0};
+  PartyMember m = {0, "", 0, 0, 0, 0, 0};
   members.push_back(m);
   members.push_back(m);
   members.push_back(m);
@@ -60,10 +60,7 @@ void DPSMeter::init_base() {
 void DPSMeter::reset() {
   std::unique_lock l(mtx);
   for (int i = 0; i < 4; i++) {
-    members[i].state = 0;
-    // members[i].name = "";
-    // members[i].damage = 0;
-    // members[i].start_time = 0;
+    members[i] = {0, "", 0, 0, 0, 0, 0};
   }
 }
 
@@ -73,17 +70,17 @@ void DPSMeter::check_members() {
   if (party_len > 4 && party_len <= 0) {
     return;
   }
-  for (int i = 0; i < party_len; i++) {
+  for (int i = 0; i < 4; i++) {
     if (members[i].state == 0) {
       auto damage_offsets = DAMAGE_OFFSETS;
       damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
-      members[i].start_damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets);
-      members[i].start_time = get_time_now();
-      members[i].state = 1;
+      auto d = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets);
+      if (d > 0) {
+        members[i].start_damage = d;
+        members[i].start_time = get_time_now();
+        members[i].state = 1;
+      }
     }
-  }
-  for (int i = party_len; i < 4; i++) {
-      members[i].state = 0;
   }
 }
 
@@ -94,11 +91,14 @@ void DPSMeter::update_damage() {
     return;
   }
   for (int i = 0; i < party_len; i++) {
+    auto hr_offsets = HR_OFFSETS;
     auto mr_offsets = MR_OFFSETS;
     auto damage_offsets = DAMAGE_OFFSETS;
+    hr_offsets[0] = hr_offsets[0] + (0x58 * i);
     mr_offsets[0] = mr_offsets[0] + (0x58 * i);
     damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
     if (members[i].state == 1) {
+      members[i].hunter_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, hr_offsets);
       members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets);
       members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets);
     }

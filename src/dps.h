@@ -10,6 +10,7 @@
 struct PartyMember {
   int8_t state;
   std::string name;
+  int16_t hunter_rank;
   int16_t master_rank;
   int32_t damage;
   int32_t start_damage;
