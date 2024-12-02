@@ -30,14 +30,14 @@ template <typename T>
 inline T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets, T default_value) {
   auto current_address = base_address;
 
-  for (auto i = -1; i < offsets.size(); ++i) {
-    if (i >= 0) {
-      current_address += offsets[i];
+  for (size_t i = 0; i <= offsets.size(); ++i) {
+    if (i >= 1) {
+      current_address += offsets[i - 1];
     }
-    if (i < offsets.size() - 1) {
+    if (i < offsets.size()) {
       current_address = *reinterpret_cast<std::uintptr_t *>(current_address);
     }
-    if (current_address < 0xffff) {
+    if (current_address < 0xff) {
       return default_value;
     }
   }
