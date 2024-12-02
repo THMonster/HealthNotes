@@ -26,7 +26,26 @@ int64_t get_time_now() {
   return unix_timestamp;
 }
 
-template <typename T> T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets) {
+template <typename T>
+inline T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets, T default_value) {
+  auto current_address = base_address;
+
+  for (size_t i = -1; i < offsets.size(); ++i) {
+    if (i != -1) {
+      current_address += offsets[i];
+    }
+    if (i < offsets.size() - 1) {
+      current_address = *reinterpret_cast<std::uintptr_t *>(current_address);
+    }
+    if (current_address < 0xffff) {
+      return default_value;
+    }
+  }
+
+  return *reinterpret_cast<T *>(current_address);
+}
+
+template <typename T> inline T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets) {
   auto current_address = *reinterpret_cast<std::uintptr_t *>(base_address);
 
   for (size_t i = 0; i < offsets.size(); ++i) {
@@ -67,18 +86,18 @@ void DPSMeter::reset() {
 
 void DPSMeter::check_members() {
   std::unique_lock l(mtx);
-  auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS);
+  auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS, 0);
   if (party_len > 4 && party_len <= 0) {
     return;
   }
   if (party_len > current_max_members) {
     current_max_members = party_len;
   }
-  for (int i = 0; i < party_len; i++) {
+  for (int i = 0; i < current_max_members; i++) {
     if (members[i].state == 0) {
       auto damage_offsets = DAMAGE_OFFSETS;
       damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
-      auto d = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets);
+      auto d = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
       if (d > 0) {
         members[i].start_damage = d;
         members[i].start_time = get_time_now();
@@ -90,7 +109,7 @@ void DPSMeter::check_members() {
 
 void DPSMeter::update_damage() {
   std::unique_lock l(mtx);
-  auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS);
+  auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS, 0);
   if (party_len > 4 && party_len <= 0) {
     return;
   }
