@@ -87,7 +87,7 @@ void DPSMeter::reset() {
 void DPSMeter::check_members() {
   std::unique_lock l(mtx);
   auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS, 0);
-  if (party_len > 4 && party_len <= 0) {
+  if (party_len > 4 || party_len <= 0) {
     return;
   }
   if (party_len > current_max_members) {
@@ -110,7 +110,7 @@ void DPSMeter::check_members() {
 void DPSMeter::update_damage() {
   std::unique_lock l(mtx);
   auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS, 0);
-  if (party_len > 4 && party_len <= 0) {
+  if (party_len > 4 || party_len <= 0) {
     return;
   }
   for (int i = 0; i < 4; i++) {
