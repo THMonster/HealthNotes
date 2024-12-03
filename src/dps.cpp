@@ -46,12 +46,13 @@ inline T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr
 }
 
 template <typename T> inline T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets) {
-  auto current_address = *reinterpret_cast<std::uintptr_t *>(base_address);
+  auto current_address = base_address;
 
-  for (size_t i = 0; i < offsets.size(); ++i) {
-    current_address += offsets[i];
-
-    if (i < offsets.size() - 1) {
+  for (size_t i = 0; i <= offsets.size(); ++i) {
+    if (i >= 1) {
+      current_address += offsets[i - 1];
+    }
+    if (i < offsets.size()) {
       current_address = *reinterpret_cast<std::uintptr_t *>(current_address);
     }
   }
@@ -109,10 +110,6 @@ void DPSMeter::check_members() {
 
 void DPSMeter::update_damage() {
   std::unique_lock l(mtx);
-  auto party_len = read_memory<int32_t>(base + PARTY_SIZE_BASE, PARTY_SIZE_OFFSETS, 0);
-  if (party_len > 4 || party_len <= 0) {
-    return;
-  }
   for (int i = 0; i < 4; i++) {
     auto hr_offsets = HR_OFFSETS;
     auto mr_offsets = MR_OFFSETS;
@@ -121,9 +118,9 @@ void DPSMeter::update_damage() {
     mr_offsets[0] = mr_offsets[0] + (0x58 * i);
     damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
     if (members[i].state == 1) {
-      members[i].hunter_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, hr_offsets);
-      members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets);
-      members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets);
+      // members[i].hunter_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, hr_offsets, 0);
+      members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets, 0);
+      members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
     }
   }
 }
@@ -144,14 +141,14 @@ std::string DPSMeter::get_dps_text() {
   int i = 0;
   for (auto m : members) {
     if (m.state == 1) {
-      if (i == 3) {
-        ret.pop_back();
+      if (i == 2) {
+        ret.append("\n");
       }
       auto dps = (m.damage - m.start_damage) / (now - m.start_time);
       float percent = (float)m.damage * 100 / total_damage;
       // ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
       ret.append(std::format("MR{}<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
-                             "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>\n",
+                             "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>",
                              m.master_rank, dps, m.damage, percent));
       i++;
     }
