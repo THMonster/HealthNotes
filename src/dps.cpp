@@ -113,21 +113,24 @@ void DPSMeter::update_damage() {
   for (int i = 0; i < 4; i++) {
     auto hr_offsets = HR_OFFSETS;
     auto mr_offsets = MR_OFFSETS;
+    auto name_offsets = NAME_OFFSETS;
     auto damage_offsets = DAMAGE_OFFSETS;
     hr_offsets[0] = hr_offsets[0] + (0x58 * i);
     mr_offsets[0] = mr_offsets[0] + (0x58 * i);
+    name_offsets[0] = name_offsets[0] + (0x58 * i);
     damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
     if (members[i].state == 1) {
-      // members[i].hunter_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, hr_offsets, 0);
+      members[i].name = std::string(read_memory<char *>(base + PARTY_MEMBER_BASE, name_offsets, (char *)"NULL"), 32);
       members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets, 0);
       members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
     }
   }
 }
 
-std::string DPSMeter::get_dps_text() {
+std::vector<std::string> DPSMeter::get_dps_text() {
   update_damage();
-  std::string ret;
+  std::string name_info;
+  std::string dps_info;
   auto now = get_time_now();
   auto total_damage = 0;
   for (auto m : members) {
@@ -142,19 +145,21 @@ std::string DPSMeter::get_dps_text() {
   for (auto m : members) {
     if (m.state == 1) {
       if (i == 2) {
-        ret.append("\n");
+        dps_info.append("\n");
+        name_info.append("\n");
       }
       auto dps = (m.damage - m.start_damage) / (now - m.start_time);
       float percent = (float)m.damage * 100 / total_damage;
       // ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
-      ret.append(std::format("MR{}<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
-                             "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>",
-                             m.master_rank, dps, m.damage, percent));
+      dps_info.append(std::format("<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
+                                  "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>",
+                                  dps, m.damage, percent));
+      name_info.append(std::format("<STYL MOJI_BLUE_DEFAULT>{}</STYL>MR{}", m.name, m.master_rank));
       i++;
     }
   }
-  if (!ret.empty() && ret.back() == '\n') {
-    ret.pop_back();
-  }
-  return ret;
+  // if (!ret.empty() && ret.back() == '\n') {
+  //   ret.pop_back();
+  // }
+  return std::vector{name_info, dps_info};
 }
