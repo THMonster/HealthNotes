@@ -26,6 +26,24 @@ int64_t get_time_now() {
   return unix_timestamp;
 }
 
+std::string read_memory_string(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets, uint64_t len) {
+  auto current_address = base_address;
+
+  for (size_t i = 0; i <= offsets.size(); ++i) {
+    if (i >= 1) {
+      current_address += offsets[i - 1];
+    }
+    if (i < offsets.size()) {
+      current_address = *reinterpret_cast<std::uintptr_t *>(current_address);
+    }
+    if (current_address < 0xff) {
+      return "NULL";
+    }
+  }
+
+  return std::string(reinterpret_cast<char *>(current_address), len);
+}
+
 template <typename T>
 inline T read_memory(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets, T default_value) {
   auto current_address = base_address;
@@ -120,7 +138,7 @@ void DPSMeter::update_damage() {
     name_offsets[0] = name_offsets[0] + (0x58 * i);
     damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
     if (members[i].state == 1) {
-      members[i].name = std::string(read_memory<char *>(base + PARTY_MEMBER_BASE, name_offsets, (char *)"NULL"), 32);
+      members[i].name = read_memory_string(base + PARTY_MEMBER_BASE, name_offsets, 32);
       members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets, 0);
       members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
     }
