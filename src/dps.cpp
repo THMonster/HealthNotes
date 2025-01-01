@@ -172,7 +172,7 @@ std::vector<std::string> DPSMeter::get_dps_text() {
       dps_info.append(std::format("<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
                                   "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>",
                                   dps, m.damage, percent));
-      name_info.append(std::format("<STYL MOJI_BLUE_DEFAULT>{}</STYL>MR{}", m.name, m.master_rank));
+      name_info.append(std::format("NAME{}MR{}", m.name, m.master_rank));
       i++;
     }
   }
