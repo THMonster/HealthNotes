@@ -28,37 +28,37 @@ int64_t get_time_now() {
 
 // Helper function to determine the number of bytes in a UTF-8 character based on the leading byte.
 size_t utf8_char_length(unsigned char ch) {
-    if ((ch & 0x80) == 0x00) {
-        return 1; // 1-byte character (ASCII)
-    } else if ((ch & 0xE0) == 0xC0) {
-        return 2; // 2-byte character
-    } else if ((ch & 0xF0) == 0xE0) {
-        return 3; // 3-byte character
-    } else if ((ch & 0xF8) == 0xF0) {
-        return 4; // 4-byte character
-    } else {
-        return 0; // Invalid UTF-8 encoding
-    }
+  if ((ch & 0x80) == 0x00) {
+    return 1; // 1-byte character (ASCII)
+  } else if ((ch & 0xE0) == 0xC0) {
+    return 2; // 2-byte character
+  } else if ((ch & 0xF0) == 0xE0) {
+    return 3; // 3-byte character
+  } else if ((ch & 0xF8) == 0xF0) {
+    return 4; // 4-byte character
+  } else {
+    return 0; // Invalid UTF-8 encoding
+  }
 }
 
 // Function to extract the first `n` characters from a UTF-8 string.
-std::string utf8_substring(const std::string& str, size_t n) {
-    size_t byte_count = 0; // Total number of bytes to include
-    size_t char_count = 0; // Number of characters processed
+std::string utf8_substring(const std::string &str, size_t n) {
+  size_t byte_count = 0; // Total number of bytes to include
+  size_t char_count = 0; // Number of characters processed
 
-    for (size_t i = 0; i < str.size() && char_count < n;) {
-        size_t char_len = utf8_char_length(static_cast<unsigned char>(str[i]));
+  for (size_t i = 0; i < str.size() && char_count < n;) {
+    size_t char_len = utf8_char_length(static_cast<unsigned char>(str[i]));
 
-        if (char_len == 0 || i + char_len > str.size()) {
-            return ""; // Return empty string on invalid UTF-8 encoding or incomplete character
-        }
-
-        i += char_len; // Move to the next character
-        byte_count += char_len; // Accumulate byte count
-        ++char_count; // Increment character count
+    if (char_len == 0 || i + char_len > str.size()) {
+      return "NULL"; // Return empty string on invalid UTF-8 encoding or incomplete character
     }
 
-    return str.substr(0, byte_count); // Return the substring containing the first `n` characters
+    i += char_len;          // Move to the next character
+    byte_count += char_len; // Accumulate byte count
+    ++char_count;           // Increment character count
+  }
+
+  return str.substr(0, byte_count); // Return the substring containing the first `n` characters
 }
 
 std::string utf8_substr(const std::string &str, size_t n) {
@@ -167,9 +167,12 @@ void DPSMeter::check_members() {
   for (int i = 0; i < current_max_members; i++) {
     if (members[i].state == 0) {
       auto damage_offsets = DAMAGE_OFFSETS;
+      auto name_offsets = NAME_OFFSETS;
       damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
+      name_offsets[0] = name_offsets[0] + (0x58 * i);
       auto d = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
       if (d > 0) {
+        members[i].name = read_memory_string(base + PARTY_MEMBER_BASE, name_offsets, 32);
         members[i].start_damage = d;
         members[i].start_time = get_time_now();
         members[i].state = 1;
@@ -183,14 +186,11 @@ void DPSMeter::update_damage() {
   for (int i = 0; i < 4; i++) {
     auto hr_offsets = HR_OFFSETS;
     auto mr_offsets = MR_OFFSETS;
-    auto name_offsets = NAME_OFFSETS;
     auto damage_offsets = DAMAGE_OFFSETS;
     hr_offsets[0] = hr_offsets[0] + (0x58 * i);
     mr_offsets[0] = mr_offsets[0] + (0x58 * i);
-    name_offsets[0] = name_offsets[0] + (0x58 * i);
     damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
     if (members[i].state == 1) {
-      members[i].name = read_memory_string(base + PARTY_MEMBER_BASE, name_offsets, 32);
       members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets, 0);
       members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
     }

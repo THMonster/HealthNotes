@@ -53,8 +53,9 @@ void checkHealth(void *monster) {
   if (!lastMessage.empty()) {
     log(INFO, "Message: {}", lastMessage);
     auto dps_text = dps_meter.get_dps_text();
+    lastMessage.append("\n");
+    lastMessage.append(dps_text[0]);
     showMessage(lastMessage);
-    showMessage(dps_text[0]);
     showMessage(dps_text[1]);
   }
 }
