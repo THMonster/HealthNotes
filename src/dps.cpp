@@ -26,6 +26,23 @@ int64_t get_time_now() {
   return unix_timestamp;
 }
 
+std::string utf8_substr(const std::string &str, size_t n) {
+  if (n == 0)
+    return "";
+
+  size_t i = 0;
+  size_t count = 0;
+  while (i < str.size() && count < n) {
+    unsigned char ch = static_cast<unsigned char>(str[i]);
+    if (ch < 0x80 || ch >= 0xC0) {
+      ++count;
+    }
+    ++i;
+  }
+
+  return str.substr(0, i);
+}
+
 std::string read_memory_string(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets, uint64_t len) {
   auto current_address = base_address;
 
@@ -171,9 +188,8 @@ std::vector<std::string> DPSMeter::get_dps_text() {
       // ret.append(std::format("{}, {}dps, {}d, {:.1f}%\n", m.master_rank, dps, m.damage, percent));
       dps_info.append(std::format("<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
                                   "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>",
-                                  dps, m.name, percent));
-      name_info.append(
-          std::format("<STYL MOJI_YELLOW_DEFAULT>{}</STYL><STYL MOJI_BLUE_DEFAULT>MR{}</STYL>", m.name, m.master_rank));
+                                  dps, m.damage, percent));
+      name_info.append(std::format("{}<STYL MOJI_BLUE_DEFAULT>MR{}</STYL>", utf8_substr(m.name, 2), m.master_rank));
       i++;
     }
   }
