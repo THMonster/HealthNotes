@@ -62,7 +62,8 @@ std::string utf8_substring(const std::string &str, size_t n) {
   if (byte_count <= 0) {
     return "NULL";
   } else {
-    return str.substr(0, byte_count); // Return the substring containing characters within the byte limit
+    return std::format("{}{}", byte_count,
+                       str.substr(0, byte_count)); // Return the substring containing characters within the byte limit
   }
 }
 
@@ -232,7 +233,8 @@ std::vector<std::string> DPSMeter::get_dps_text() {
       dps_info.append(std::format("<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
                                   "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>",
                                   dps, m.damage, percent));
-      name_info.append(std::format("{} <STYL MOJI_BLUE_DEFAULT>MR{}</STYL> ", utf8_substring(m.name, 6), m.master_rank));
+      name_info.append(
+          std::format("{} <STYL MOJI_BLUE_DEFAULT>MR{}</STYL> ", utf8_substring(m.name, 8), m.master_rank));
       i++;
     }
   }
