@@ -173,11 +173,16 @@ void DPSMeter::check_members() {
     if (members[i].state == 0) {
       auto damage_offsets = DAMAGE_OFFSETS;
       auto name_offsets = NAME_OFFSETS;
+      auto hr_offsets = HR_OFFSETS;
+      auto mr_offsets = MR_OFFSETS;
       damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
       name_offsets[0] = name_offsets[0] + (0x58 * i);
+      hr_offsets[0] = hr_offsets[0] + (0x58 * i);
+      mr_offsets[0] = mr_offsets[0] + (0x58 * i);
       auto d = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
       if (d > 0) {
         members[i].name = read_memory_string(base + PARTY_MEMBER_BASE, name_offsets, 32);
+        members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets, 0);
         members[i].start_damage = d;
         members[i].start_time = get_time_now();
         members[i].state = 1;
@@ -189,14 +194,9 @@ void DPSMeter::check_members() {
 void DPSMeter::update_damage() {
   std::unique_lock l(mtx);
   for (int i = 0; i < 4; i++) {
-    auto hr_offsets = HR_OFFSETS;
-    auto mr_offsets = MR_OFFSETS;
     auto damage_offsets = DAMAGE_OFFSETS;
-    hr_offsets[0] = hr_offsets[0] + (0x58 * i);
-    mr_offsets[0] = mr_offsets[0] + (0x58 * i);
     damage_offsets[4] = damage_offsets[4] + (0x2a0 * i);
     if (members[i].state == 1) {
-      members[i].master_rank = read_memory<int16_t>(base + PARTY_MEMBER_BASE, mr_offsets, 0);
       members[i].damage = read_memory<int32_t>(base + DAMAGE_BASE, damage_offsets, 0);
     }
   }
