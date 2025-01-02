@@ -46,6 +46,9 @@ std::string utf8_substring(const std::string &str, size_t n) {
   size_t byte_count = 0; // Total number of bytes to include
 
   for (size_t i = 0; i < str.size();) {
+    if (i >= str.size()) {
+      break;
+    }
     size_t char_len = utf8_char_length(static_cast<unsigned char>(str[i]));
 
     if (char_len == 0 || i + char_len > str.size() || byte_count + char_len > n) {
