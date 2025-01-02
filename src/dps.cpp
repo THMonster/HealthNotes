@@ -41,42 +41,47 @@ size_t utf8_char_length(unsigned char ch) {
   }
 }
 
-// Function to extract the first `n` characters from a UTF-8 string.
+// Function to extract the first part of a UTF-8 string whose byte length does not exceed `n` bytes.
 std::string utf8_substring(const std::string &str, size_t n) {
   size_t byte_count = 0; // Total number of bytes to include
-  size_t char_count = 0; // Number of characters processed
 
-  for (size_t i = 0; i < str.size() && char_count < n;) {
+  for (size_t i = 0; i < str.size();) {
     size_t char_len = utf8_char_length(static_cast<unsigned char>(str[i]));
 
-    if (char_len == 0 || i + char_len > str.size()) {
-      return "NULL"; // Return empty string on invalid UTF-8 encoding or incomplete character
+    if (char_len == 0 || i + char_len > str.size() || byte_count + char_len > n) {
+      break; // Stop if invalid UTF-8, incomplete character, or byte limit exceeded
     }
 
     i += char_len;          // Move to the next character
     byte_count += char_len; // Accumulate byte count
-    ++char_count;           // Increment character count
   }
 
-  return str.substr(0, byte_count); // Return the substring containing the first `n` characters
-}
-
-std::string utf8_substr(const std::string &str, size_t n) {
-  if (n == 0)
-    return "";
-
-  size_t i = 0;
-  size_t count = 0;
-  while (i < str.size() && count < n) {
-    unsigned char ch = static_cast<unsigned char>(str[i]);
-    if (ch < 0x80 || ch >= 0xC0) {
-      ++count;
-    }
-    ++i;
+  if (byte_count <= 0) {
+    return "NULL";
+  } else {
+    return str.substr(0, byte_count); // Return the substring containing characters within the byte limit
   }
-
-  return str.substr(0, i);
 }
+
+// Function to extract the first `n` characters from a UTF-8 string.
+// std::string utf8_substring(const std::string &str, size_t n) {
+//   size_t byte_count = 0; // Total number of bytes to include
+//   size_t char_count = 0; // Number of characters processed
+
+//   for (size_t i = 0; i < str.size() && char_count < n;) {
+//     size_t char_len = utf8_char_length(static_cast<unsigned char>(str[i]));
+
+//     if (char_len == 0 || i + char_len > str.size()) {
+//       return "NULL"; // Return empty string on invalid UTF-8 encoding or incomplete character
+//     }
+
+//     i += char_len;          // Move to the next character
+//     byte_count += char_len; // Accumulate byte count
+//     ++char_count;           // Increment character count
+//   }
+
+//   return str.substr(0, byte_count); // Return the substring containing the first `n` characters
+// }
 
 std::string read_memory_string(std::uintptr_t base_address, const std::vector<std::uintptr_t> &offsets, uint64_t len) {
   auto current_address = base_address;
@@ -224,7 +229,7 @@ std::vector<std::string> DPSMeter::get_dps_text() {
       dps_info.append(std::format("<STYL MOJI_RED_DEFAULT>{}dps</STYL>"
                                   "{}d<STYL MOJI_ORANGE_DEFAULT>{:.1f}%</STYL>",
                                   dps, m.damage, percent));
-      name_info.append(std::format("{}<STYL MOJI_BLUE_DEFAULT>MR{}</STYL>", utf8_substring(m.name, 2), m.master_rank));
+      name_info.append(std::format("{}<STYL MOJI_BLUE_DEFAULT>MR{}</STYL>", utf8_substring(m.name, 9), m.master_rank));
       i++;
     }
   }
